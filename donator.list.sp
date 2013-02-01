@@ -1,12 +1,13 @@
 /*
 * Filename: donator.list.sp
-* Description: Lists donators currently on server
+* Description: Lists donators currently on server to admins
 * Dependencies: donator.core.sp            
 * Includes: donator.inc
 * CVARs: donator_list_version
 * Public: -none-
 * 
 * Changelog:
+* 0.0.4a - changed earlier admin check to prevent donators from triggering plugin
 * 0.0.3a - alpha, added color text, changed admin check to exclude donators (unlike before)
 * 0.2 - alpha
 * 0.1 - alpha
@@ -17,11 +18,12 @@
 
 #include <sourcemod>
 #include <donator>
-//#include <clients>	// MAX_NAME_LENGTH
+//#include <clients>	// MAX_NAME_LENGTH, MAXPLAYERS, MaxClients
+//#include <admin>	// INVALID_ADMIN_ID
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION	"0.0.3a"
+#define PLUGIN_VERSION	"0.0.4a"
 
 public Plugin:myinfo = 
 {
@@ -61,7 +63,7 @@ public Action:SayHook(iClient, const String:command[], args)
 		return Plugin_Continue;
 		
 	// Is this client an admin?
-	if (!GetUserAdmin(iClient)) 
+	if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
 		return Plugin_Continue;
 	
 
