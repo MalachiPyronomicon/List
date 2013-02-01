@@ -7,6 +7,7 @@
 * Public: -none-
 * 
 * Changelog:
+* 0.0.5 - Changed chat trigger to avoid conflict w/basic donator plugin, removed unneeded cvar
 * 0.0.4a - changed earlier admin check to prevent donators from triggering plugin
 * 0.0.3a - alpha, added color text, changed admin check to exclude donators (unlike before)
 * 0.2 - alpha
@@ -18,12 +19,10 @@
 
 #include <sourcemod>
 #include <donator>
-//#include <clients>	// MAX_NAME_LENGTH, MAXPLAYERS, MaxClients
-//#include <admin>	// INVALID_ADMIN_ID
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION	"0.0.4a"
+#define PLUGIN_VERSION	"0.0.5"
 
 public Plugin:myinfo = 
 {
@@ -36,12 +35,8 @@ public Plugin:myinfo =
 
 public OnPluginStart()
 {
-	CreateConVar("donator_list_version", PLUGIN_VERSION, "Donator List Version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
-	
 	AddCommandListener(SayHook, "say");
 	AddCommandListener(SayHook, "say_team");
-
-//	bool:dontBroadcast
 
 }
 
@@ -76,7 +71,7 @@ public Action:SayHook(iClient, const String:command[], args)
 	TrimString(text);
 	
 
-	if(StrEqual(text, "!donators", false) || StrEqual(text, "/donators", false))
+	if(StrEqual(text, "!listdonators", false) || StrEqual(text, "/listdonators", false))
 	{
 		for (new iDon = 1; iDon <= MaxClients; iDon++)
 		{
