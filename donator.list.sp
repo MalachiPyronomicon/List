@@ -7,6 +7,7 @@
 * Public: -none-
 * 
 * Changelog:
+* 0.0.7 - fix donator number counter
 * 0.0.6 - convert chat trigger to cvar, also check for fake player
 * 0.0.5 - Changed chat trigger to avoid conflict w/basic donator plugin, removed unneeded cvar
 * 0.0.4a - changed earlier admin check to prevent donators from triggering plugin
@@ -23,7 +24,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION	"0.0.6"
+#define PLUGIN_VERSION	"0.0.7"
 
 public Plugin:myinfo = 
 {
@@ -75,7 +76,7 @@ public Action:Command_Say(iClient, args)
 				// Is this client a donator?
 				if (IsPlayerDonator(iDon))
 				{
-					// loop through all players to find admins
+					// loop through all players to find admins and print only to them
 					for (new iAdm = 1; iAdm <= MaxClients; iAdm++)
 					{
 						if (IsClientInGame(iAdm))
@@ -85,10 +86,10 @@ public Action:Command_Say(iClient, args)
 							{
 								if (GetClientName(iDon, donName, sizeof(donName)))
 									PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %d. %s", iCounter, donName);
-								iCounter++;
 							}	
 						}
 					}
+					iCounter++;
 				}
 			}
 		}
