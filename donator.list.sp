@@ -7,6 +7,7 @@
 * Public: -none-
 * 
 * Changelog:
+* 0.0.6 - convert chat trigger to cvar, also check for fake player
 * 0.0.5 - Changed chat trigger to avoid conflict w/basic donator plugin, removed unneeded cvar
 * 0.0.4a - changed earlier admin check to prevent donators from triggering plugin
 * 0.0.3a - alpha, added color text, changed admin check to exclude donators (unlike before)
@@ -22,7 +23,7 @@
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION	"0.0.5"
+#define PLUGIN_VERSION	"0.0.6"
 
 public Plugin:myinfo = 
 {
@@ -35,51 +36,46 @@ public Plugin:myinfo =
 
 public OnPluginStart()
 {
-	AddCommandListener(SayHook, "say");
-	AddCommandListener(SayHook, "say_team");
-
+	RegConsoleCmd("sm_listdonators", Command_Say, "List donators to admins.");
 }
 
 public OnAllPluginsLoaded()
 {
-	if(!LibraryExists("donator.core")) SetFailState("Unable to find plugin: Basic Donator Interface");
+	if(!LibraryExists("donator.core")) 
+		SetFailState("Unable to find plugin: Basic Donator Interface");
 }
 
 
-public Action:SayHook(iClient, const String:command[], args)
+public Action:Command_Say(iClient, args)
 {
 	// Is this console?
 	if (!iClient)
-		return Plugin_Continue;
+		return Plugin_Handled;
 		
 	// Do we really need this check?
 	// Are they in game?
 	if (!IsClientInGame(iClient))
-		return Plugin_Continue;
+		return Plugin_Handled;
 		
 	// Is this client an admin?
 	if (GetUserAdmin(iClient) == INVALID_ADMIN_ID)
-		return Plugin_Continue;
+		return Plugin_Handled;
 	
-
-	decl String:text[192];
 	decl String:donName[MAX_NAME_LENGTH];
+	new iCounter = 1;
 	
-	GetCmdArgString(text, sizeof(text));
-
-	StripQuotes(text);
-	TrimString(text);
-	
-
-	if(StrEqual(text, "!listdonators", false) || StrEqual(text, "/listdonators", false))
+	for (new iDon = 1; iDon <= MaxClients; iDon++)
 	{
-		for (new iDon = 1; iDon <= MaxClients; iDon++)
+		// Is client in game?
+		if (IsClientInGame(iDon))
 		{
-			if (IsClientInGame(iDon))
+			// Is this client fake?
+			if (!IsFakeClient(iDon))
 			{
 				// Is this client a donator?
 				if (IsPlayerDonator(iDon))
 				{
+					// loop through all players to find admins
 					for (new iAdm = 1; iAdm <= MaxClients; iAdm++)
 					{
 						if (IsClientInGame(iAdm))
@@ -88,18 +84,15 @@ public Action:SayHook(iClient, const String:command[], args)
 							if (GetUserAdmin(iAdm) != INVALID_ADMIN_ID)
 							{
 								if (GetClientName(iDon, donName, sizeof(donName)))
-									PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %s", donName);
+									PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %d. %s", iCounter, donName);
+								iCounter++;
 							}	
 						}
 					}
-				}	
+				}
 			}
 		}
-		
-		return Plugin_Handled;
 	}
-	else
-	{	
-		return Plugin_Continue;
-	}
+	
+	return Plugin_Handled;
 }
