@@ -69,6 +69,8 @@ public Action:Command_Say(iClient, args)
 	{
 		if (IsClientInGame(iDon) &&
             !IsFakeClient(iDon) &&
+            !IsClientSourceTV(client) &&
+            !IsClientReplay(client) &&
             IsPlayerDonator(iDon))
 		{
             // loop through all players to find admins and print only to them
@@ -76,8 +78,6 @@ public Action:Command_Say(iClient, args)
             {
                 if (IsClientInGame(iAdm) &&
                     (GetUserAdmin(iAdm) != INVALID_ADMIN_ID) &&
-                    !IsClientSourceTV(client) &&
-                    !IsClientReplay(client) &&
                     GetClientName(iDon, donName, sizeof(donName)))
                 {
                     PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %d. %s", iAdm, donName);
