@@ -67,33 +67,24 @@ public Action:Command_Say(iClient, args)
 	
 	for (new iDon = 1; iDon <= MaxClients; iDon++)
 	{
-		// Is client in game?
-		if (IsClientInGame(iDon))
+		if (IsClientInGame(iDon) &&
+            !IsFakeClient(iDon) &&
+            !IsClientSourceTV(client) &&
+            !IsClientReplay(client) &&
+            IsPlayerDonator(iDon))
 		{
-			// Is this client fake?
-			if (!IsFakeClient(iDon))
-			{
-				// Is this client a donator?
-				if (IsPlayerDonator(iDon))
-				{
-					// loop through all players to find admins and print only to them
-					for (new iAdm = 1; iAdm <= MaxClients; iAdm++)
-					{
-						if (IsClientInGame(iAdm))
-						{
-							// print only to admins
-							if (GetUserAdmin(iAdm) != INVALID_ADMIN_ID)
-							{
-								if (GetClientName(iDon, donName, sizeof(donName)))
-									PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %d. %s", iCounter, donName);
-							}	
-						}
-					}
-					iCounter++;
-				}
-			}
-		}
-	}
+            // loop through all players to find admins and print only to them
+            for (new iAdm = 1; iAdm <= MaxClients; iAdm++)
+            {
+                if (IsClientInGame(iAdm) &&
+                    (GetUserAdmin(iAdm) != INVALID_ADMIN_ID) &&
+                    GetClientName(iDon, donName, sizeof(donName)))
+                {
+                    PrintToChat(iAdm, "\x04(ADMINS) \x01Donators: %d. %s", iAdm, donName);
+                }
+            }
+        }
+    }
 	
 	return Plugin_Handled;
 }
